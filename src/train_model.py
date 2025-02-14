@@ -4,6 +4,18 @@ import torch.optim as optim
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
+import random
+
+# Business Context
+print("🌟 Business Use Case: Early Detection of Breast Cancer")
+print("""
+In the healthcare industry, early detection of diseases like breast cancer can save lives and reduce treatment costs.
+This demo uses a neural network to classify breast tumors as malignant or benign based on features like tumor size, shape, and texture.
+The goal is to assist doctors in making faster and more accurate diagnoses, improving patient outcomes.
+""")
 
 # Load dataset
 df = pd.read_csv("data/breast_cancer.csv")
@@ -21,7 +33,7 @@ y_tensor = torch.tensor(y, dtype=torch.long)
 # Split dataset
 X_train, X_test, y_train, y_test = train_test_split(X_tensor, y_tensor, test_size=0.2, random_state=42)
 
-
+# Define the Neural Network
 class NeuralNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super(NeuralNet, self).__init__()
@@ -35,6 +47,7 @@ class NeuralNet(nn.Module):
         x = self.fc2(x)
         return x
 
+# Compare Optimizers
 optimizers = ["SGD", "Adam", "RMSprop"]
 results = {}
 
@@ -53,6 +66,7 @@ for name in optimizers:
     criterion = nn.CrossEntropyLoss()
     loss_values = []
 
+    # Training loop
     for epoch in range(50):
         optimizer.zero_grad()
         outputs = model(X_train)
@@ -66,10 +80,8 @@ for name in optimizers:
 
     results[name] = loss_values
 
-import matplotlib.pyplot as plt
-
+# Plot Loss Curves
 plt.figure(figsize=(8, 5))
-
 for name, loss in results.items():
     plt.plot(range(1, 51), loss, label=name)
 
@@ -79,7 +91,7 @@ plt.title("Loss Curve Comparison for Different Optimizers")
 plt.legend()
 plt.show()
 
-# Test model accuracy
+# Test Model Accuracy
 with torch.no_grad():
     test_outputs = model(X_test)
     _, predictions = torch.max(test_outputs, 1)
@@ -87,18 +99,38 @@ with torch.no_grad():
 
 print(f"✅ Model Accuracy: {accuracy * 100:.2f}%")
 
-# Select 5 random test samples
-import random
+# Confusion Matrix
+cm = confusion_matrix(y_test, predictions)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Malignant', 'Benign'], yticklabels=['Malignant', 'Benign'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
 
+# Classification Report
+print("📊 Classification Report:")
+print(classification_report(y_test, predictions, target_names=['Malignant', 'Benign']))
+
+# Select 5 Random Test Samples
 indices = random.sample(range(len(X_test)), 5)
 sample_features = X_test[indices]
 sample_labels = y_test[indices]
 
-# Predict using the trained model
+# Predict Using the Trained Model
 with torch.no_grad():
     sample_outputs = model(sample_features)
     _, sample_predictions = torch.max(sample_outputs, 1)
 
-# Print results
+# Print Results
+print("\n🔍 Sample Predictions:")
 for i in range(len(indices)):
-    print(f"Actual: {'Malignant' if sample_labels[i] == 0 else 'Benign'}, Predicted: {'Malignant' if sample_predictions[i] == 0 else 'Benign'}")
+    print(f"Sample {i+1}: Actual: {'Malignant' if sample_labels[i] == 0 else 'Benign'}, Predicted: {'Malignant' if sample_predictions[i] == 0 else 'Benign'}")
+
+# Pitch for the Technology's Potential
+print("""
+🚀 Why This Technology Has Potential:
+1. **Early Detection:** Neural networks can identify patterns in medical data that humans might miss, enabling early diagnosis of diseases like cancer.
+2. **Cost Efficiency:** Automating diagnosis reduces healthcare costs and allows doctors to focus on treatment.
+3. **Scalability:** This technology can be deployed in hospitals worldwide, improving access to quality healthcare.
+4. **Real-World Impact:** Beyond healthcare, neural networks are transforming industries like finance, retail, and manufacturing.
+""")
