@@ -10,7 +10,7 @@ import seaborn as sns
 import random
 
 # Business Context
-print("🌟 Business Use Case: Early Detection of Breast Cancer")
+print(" Business Use Case: Early Detection of Breast Cancer")
 print("""
 In the healthcare industry, early detection of diseases like breast cancer can save lives and reduce treatment costs.
 This demo uses a neural network to classify breast tumors as malignant or benign based on features like tumor size, shape, and texture.
@@ -21,6 +21,8 @@ The goal is to assist doctors in making faster and more accurate diagnoses, impr
 df = pd.read_csv("data/breast_cancer.csv")
 X = df.iloc[:, :-1].values  # Features
 y = df["label"].values  # Target (0: Malignant, 1: Benign)
+print(df)
+
 
 # Normalize data
 scaler = StandardScaler()
